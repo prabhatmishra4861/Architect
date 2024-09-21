@@ -1,8 +1,7 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Home from "./pages/components/home/Home";
+import { Route, Routes, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import React, { useState } from "react";
 import {
@@ -16,31 +15,37 @@ import { Layout, Menu, theme, Button } from "antd";
 import FloorPlan from "./pages/components/floorplan/FloorPlan";
 import Design from "./pages/components/design/Design";
 import { RoomProvider } from "./context/RoomContext";
+
 const { Header, Content, Sider } = Layout;
+
 const sidebarObject = [
   {
-    key: "floor-plan",
+    key: "/floor-plan", // Matches the route path
     icon: React.createElement(UserOutlined),
     label: `Floorplan`,
   },
   {
-    key: "design",
+    key: "/design", // Matches the route path
     icon: React.createElement(VideoCameraOutlined),
     label: `Design`,
   },
   {
-    key: "add-items",
+    key: "/add-items", // You can define the route for this later
     icon: React.createElement(UploadOutlined),
     label: `Add Items`,
+    disabled:true
   },
 ];
 
 const App = () => {
   const [collapsed, setCollapsed] = useState(false);
-
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const location = useLocation(); // Hook to get the current location
+  const navigate = useNavigate();  // Hook to programmatically navigate
+
   return (
     <div className="page-height">
       <Layout className="h-100 w-100">
@@ -81,18 +86,16 @@ const App = () => {
                 ></path>{" "}
               </g>
             </svg>
-
-            {collapsed ? (
-              <></>
-            ) : (
-              <span className="ms-2  text-white">Architect</span>
-            )}
+            {collapsed ? <></> : <span className="ms-2 text-white">Architect</span>}
           </div>
           <Menu
             theme="dark"
             mode="inline"
-            defaultSelectedKeys={["floor-plan"]}
+            selectedKeys={[location.pathname]} // Set active menu item based on the route
             items={sidebarObject}
+            onClick={({ key }) => {
+              navigate(key); // Navigate programmatically without reload
+            }}
           />
         </Sider>
         <Layout>
@@ -127,15 +130,13 @@ const App = () => {
                 borderRadius: borderRadiusLG,
               }}
             >
-            <RoomProvider>
-                <Router>
-      <Routes>
-        <Route path="/" element={<FloorPlan />} />  {/* Pass as JSX */}
-        <Route path="/design" element={<Design />} />  {/* Pass as JSX */}
-      </Routes>
-    </Router>
-
-            </RoomProvider>
+              <RoomProvider>
+                <Routes>
+                  <Route path="/floor-plan" element={<FloorPlan />} />
+                  <Route path="/design" element={<Design />} />
+                  <Route path="*" element={<Navigate to="/floor-plan" replace />} />
+                </Routes>
+              </RoomProvider>
             </div>
           </Content>
         </Layout>
@@ -143,4 +144,5 @@ const App = () => {
     </div>
   );
 };
+
 export default App;

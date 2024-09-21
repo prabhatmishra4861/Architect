@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRoom } from '../../../context/RoomContext';
+import { Button } from '@mui/material';
+import { Save, Edit, ViewColumn, FolderOpen } from '@mui/icons-material';
 
 const FloorPlan = () => {
   const { walls, setWalls } = useRoom();
@@ -43,8 +45,8 @@ const FloorPlan = () => {
         ctx.beginPath();
         ctx.moveTo(wall.x1, wall.y1);
         ctx.lineTo(wall.x2, wall.y2);
-        ctx.strokeStyle = '#ff0000'; // Change line color to red
-        ctx.lineWidth = 2; // Adjust line width
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 2;
         ctx.stroke();
       });
     };
@@ -64,22 +66,20 @@ const FloorPlan = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawGrid(ctx, canvas.width, canvas.height);
 
-      // Redraw existing walls
       walls.forEach((wall) => {
         ctx.beginPath();
         ctx.moveTo(wall.x1, wall.y1);
         ctx.lineTo(wall.x2, wall.y2);
-        ctx.strokeStyle = '#ff0000'; // Change line color to red
-        ctx.lineWidth = 2; // Adjust line width
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 2;
         ctx.stroke();
       });
 
-      // Draw the current line
       ctx.beginPath();
       ctx.moveTo(lastPoint.x, lastPoint.y);
       ctx.lineTo(offsetX, offsetY);
-      ctx.strokeStyle = '#0000ff'; // Change current drawing line color to blue
-      ctx.lineWidth = 2; // Adjust line width
+      ctx.strokeStyle = '#0000ff';
+      ctx.lineWidth = 2;
       ctx.stroke();
     };
 
@@ -95,7 +95,7 @@ const FloorPlan = () => {
       };
       setWalls((prevWalls) => [...prevWalls, newWall]);
       setLastPoint(null);
-      updateCanvas(); // Redraw after adding the wall
+      updateCanvas();
     };
 
     canvas.addEventListener('mousedown', handleMouseDown);
@@ -117,32 +117,71 @@ const FloorPlan = () => {
     const data = JSON.stringify(walls);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = 'floorplan.json';
     a.click();
-    
+
     URL.revokeObjectURL(url);
+  };
+
+  const handleLoad = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const loadedWalls = JSON.parse(event.target.result);
+      setWalls(loadedWalls);
+    };
+    reader.readAsText(file);
   };
 
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
-      <button 
+      <Button 
+        variant="contained" 
+        startIcon={<ViewColumn />} 
         onClick={handleSwitchTo3D} 
         style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10 }}>
         Switch to 3D
-      </button>
-      <button 
+      </Button>
+      <Button 
+        variant="contained" 
+        startIcon={<Save />} 
         onClick={handleSave} 
         style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 10 }}>
         Save
-      </button>
-      <button 
-        onClick={() => setDrawing(!drawing)} // Toggle drawing state
+      </Button>
+      <Button 
+        variant="contained" 
+        startIcon={<Edit />} 
+        onClick={() => setDrawing(!drawing)} 
         style={{ position: 'absolute', top: '50px', right: '10px', zIndex: 10 }}>
         {drawing ? 'Stop Drawing' : 'Draw Mode'}
-      </button>
+      </Button>
+      <input 
+        type="file" 
+        accept=".json" 
+        onChange={handleLoad} 
+        style={{ position: 'absolute', top: '90px', right: '10px', zIndex: 10 }} 
+      />
+      <label 
+        style={{ 
+          position: 'absolute', 
+          top: '90px', 
+          right: '10px', 
+          zIndex: 10, 
+          cursor: 'pointer', 
+          display: 'inline-block', 
+          padding: '10px 15px', 
+          backgroundColor: '#007bff', 
+          color: 'white', 
+          borderRadius: '5px' 
+        }}>
+        <FolderOpen style={{ marginRight: '5px' }} /> Load
+      </label>
       <canvas 
         ref={canvasRef} 
         style={{ width: '100%', height: '100%', border: '1px solid black' }} 
