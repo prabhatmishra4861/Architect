@@ -28,8 +28,8 @@ const Design = () => {
     const controls = new OrbitControls(cameraRef.current, rendererRef.current.domElement);
     controls.enableDamping = true; // Smooth control movement
     controls.dampingFactor = 0.05; // Damping factor for smoother motion
-    controls.autoRotate = true; 
-    controls.enableZoom = false;
+    controls.autoRotate = false; 
+    // controls.enableZoom = false;
     controls.enablePan = false;
 
 

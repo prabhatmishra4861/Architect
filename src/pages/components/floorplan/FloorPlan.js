@@ -46,8 +46,8 @@ const FloorPlan = () => {
         ctx.beginPath();
         ctx.moveTo(wall.x1, wall.y1);
         ctx.lineTo(wall.x2, wall.y2);
-        ctx.strokeStyle = '#ffcccc'; // Light red for existing walls
-        ctx.lineWidth = 4; // Increased line width
+        ctx.strokeStyle = '#cccccc'; // Light red for existing walls
+        ctx.lineWidth = 8; // Increased line width
         ctx.stroke();
       });
     };
@@ -71,8 +71,8 @@ const FloorPlan = () => {
         ctx.beginPath();
         ctx.moveTo(wall.x1, wall.y1);
         ctx.lineTo(wall.x2, wall.y2);
-        ctx.strokeStyle = '#ffcccc'; // Light red for existing walls
-        ctx.lineWidth = 4; // Increased line width
+        ctx.strokeStyle = '#cccccc'; // Light red for existing walls
+        ctx.lineWidth = 8; // Increased line width
         ctx.stroke();
       });
 
@@ -80,8 +80,8 @@ const FloorPlan = () => {
       ctx.beginPath();
       ctx.moveTo(lastPoint.x, lastPoint.y);
       ctx.lineTo(offsetX, offsetY);
-      ctx.strokeStyle = '#99ccff'; // Light blue for current drawing line
-      ctx.lineWidth = 4; // Increased line width
+      ctx.strokeStyle = '#286090'; // Light blue for current drawing line
+      ctx.lineWidth = 8; // Increased line width
       ctx.stroke();
     };
 
