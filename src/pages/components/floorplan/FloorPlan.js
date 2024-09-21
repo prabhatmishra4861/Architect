@@ -7,12 +7,13 @@ import { Save, Edit, ViewColumn, FolderOpen } from '@mui/icons-material';
 const FloorPlan = () => {
   const { walls, setWalls } = useRoom();
   const canvasRef = useRef(null);
+  const fileInputRef = useRef(null);
   const [drawing, setDrawing] = useState(false);
   const [lastPoint, setLastPoint] = useState(null);
   const navigate = useNavigate();
 
   const drawGrid = (ctx, width, height) => {
-    ctx.strokeStyle = '#e0e0e0';
+    ctx.strokeStyle = '#d3d3d3'; // Light gray grid color
     ctx.lineWidth = 0.5;
 
     for (let x = 0; x < width; x += 20) {
@@ -45,8 +46,8 @@ const FloorPlan = () => {
         ctx.beginPath();
         ctx.moveTo(wall.x1, wall.y1);
         ctx.lineTo(wall.x2, wall.y2);
-        ctx.strokeStyle = '#ff0000';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ffcccc'; // Light red for existing walls
+        ctx.lineWidth = 4; // Increased line width
         ctx.stroke();
       });
     };
@@ -70,16 +71,17 @@ const FloorPlan = () => {
         ctx.beginPath();
         ctx.moveTo(wall.x1, wall.y1);
         ctx.lineTo(wall.x2, wall.y2);
-        ctx.strokeStyle = '#ff0000';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ffcccc'; // Light red for existing walls
+        ctx.lineWidth = 4; // Increased line width
         ctx.stroke();
       });
 
+      // Draw the current line
       ctx.beginPath();
       ctx.moveTo(lastPoint.x, lastPoint.y);
       ctx.lineTo(offsetX, offsetY);
-      ctx.strokeStyle = '#0000ff';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#99ccff'; // Light blue for current drawing line
+      ctx.lineWidth = 4; // Increased line width
       ctx.stroke();
     };
 
@@ -93,6 +95,34 @@ const FloorPlan = () => {
         x2: offsetX,
         y2: offsetY,
       };
+
+      // Check for existing walls and adjust the endpoints if close
+      let adjusted = false;
+      const distanceThreshold = 10; // Adjust as necessary
+
+      walls.forEach((wall) => {
+        const distToStart = Math.sqrt(
+          (newWall.x1 - wall.x1) ** 2 + (newWall.y1 - wall.y1) ** 2
+        );
+        const distToEnd = Math.sqrt(
+          (newWall.x2 - wall.x2) ** 2 + (newWall.y2 - wall.y2) ** 2
+        );
+
+        // If new wall's start is close to the end of an existing wall
+        if (distToStart < distanceThreshold) {
+          newWall.x1 = wall.x1;
+          newWall.y1 = wall.y1;
+          adjusted = true;
+        }
+
+        // If new wall's end is close to the start of an existing wall
+        if (distToEnd < distanceThreshold) {
+          newWall.x2 = wall.x2;
+          newWall.y2 = wall.y2;
+          adjusted = true;
+        }
+      });
+
       setWalls((prevWalls) => [...prevWalls, newWall]);
       setLastPoint(null);
       updateCanvas();
@@ -138,6 +168,10 @@ const FloorPlan = () => {
     reader.readAsText(file);
   };
 
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
+
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
       <Button 
@@ -145,7 +179,7 @@ const FloorPlan = () => {
         startIcon={<ViewColumn />} 
         onClick={handleSwitchTo3D} 
         style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10 }}>
-        Switch to 3D
+        Switch to Design
       </Button>
       <Button 
         variant="contained" 
@@ -165,26 +199,26 @@ const FloorPlan = () => {
         type="file" 
         accept=".json" 
         onChange={handleLoad} 
-        style={{ position: 'absolute', top: '90px', right: '10px', zIndex: 10 }} 
+        ref={fileInputRef} 
+        style={{ display: 'none' }} 
       />
-      <label 
-        style={{ 
-          position: 'absolute', 
-          top: '90px', 
-          right: '10px', 
-          zIndex: 10, 
-          cursor: 'pointer', 
-          display: 'inline-block', 
-          padding: '10px 15px', 
-          backgroundColor: '#007bff', 
-          color: 'white', 
-          borderRadius: '5px' 
-        }}>
-        <FolderOpen style={{ marginRight: '5px' }} /> Load
-      </label>
+      <Button 
+        variant="contained" 
+        startIcon={<FolderOpen />} 
+        onClick={triggerFileInput} 
+        style={{ position: 'absolute', top: '90px', right: '10px', zIndex: 10 }}>
+        Load
+      </Button>
       <canvas 
+      style={{ 
+        width: '100%', 
+        height: '100%', 
+        backgroundColor: 'white', // Ensure the background is white
+        position: 'relative', 
+        border: '2px solid #ccc', // Add border to the page
+        boxSizing: 'border-box' 
+      }} 
         ref={canvasRef} 
-        style={{ width: '100%', height: '100%', border: '1px solid black' }} 
       />
     </div>
   );
