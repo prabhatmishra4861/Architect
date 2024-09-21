@@ -18,7 +18,7 @@ const Design = () => {
     scene.background = new THREE.Color(0xffffff); // Change background to white
 
     // Initialize camera and renderer
-    cameraRef.current = new THREE.PerspectiveCamera(60, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000); // Adjusted FOV
+    cameraRef.current = new THREE.PerspectiveCamera(90, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000); // Adjusted FOV
     cameraRef.current.position.set(0, 5, 10); // Adjust camera height and distance for a wider view
 
     rendererRef.current = new THREE.WebGLRenderer({ antialias: true });
@@ -27,7 +27,12 @@ const Design = () => {
 
     const controls = new OrbitControls(cameraRef.current, rendererRef.current.domElement);
     controls.enableDamping = true; // Smooth control movement
-    controls.dampingFactor = 0.25; // Damping factor for smoother motion
+    controls.dampingFactor = 0.05; // Damping factor for smoother motion
+    controls.autoRotate = true; 
+    controls.enableZoom = false;
+    controls.enablePan = false;
+
+
 
     const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xff9999 });
 
